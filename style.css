@@ -1,0 +1,65 @@
+#left-face, #right-face, #up-face, #down-face, #front-face, #back-face{width:150px; height: 150px; background-color: rgb(248, 245, 245); display: grid;   grid-template-columns: auto auto auto; grid-gap: 3px; border-radius: 7px;}
+.config-div{
+    width:150px; height: 150px; background-color: rgb(248, 245, 245);
+}
+
+.container{width: 550px; aspect-ratio: 1/1; margin: auto; display: grid; grid-gap: 20px;  grid-template-columns: auto auto auto; margin-top: 200px;}
+.config, .face-name{display: inline-block;}
+
+.config-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    padding: 8px;
+}
+
+.face-rotate-btn, .face-rotate-prime-btn, .cube-rotate-btn, .cube-rotate-prime-btn, .face-double-rotate-btn{width: 50px;  height: 50px; font-weight: bold;}
+.cube-state-btnm{width: 150px; height: 50px;}
+.moves-para{font-size: 50px;}
+.face-div{width: 165px;}
+.algorithm-modal-container{
+    width: 26%;
+    min-height: 12%;
+    position: absolute;
+    right: 100px;
+    top: 300px;
+    background-color:yellow;
+    border: black 3px solid;
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0px;
+}
+
+.algorithm-modal{
+    position: relative;
+    width: 80%;
+    min-height: 30%;
+    background-color: rgb(250, 252, 253);
+    border-radius: 15px;
+    color: black;
+    font-size: 30px;
+    padding: 0px 20px;
+    margin: 10px;
+}
+
+.scramble-modal-container{
+    width:26%;
+    height: 10%;
+    background-color: orange;
+position: absolute;
+top: 600px;
+right: 100px;
+display: flex;
+flex-direction: column;
+justify-content: space-around;
+align-items: center;
+border-radius: 10px;
+}
+
+#scramble-input{
+    font-size: 30px;
+    font-weight: bold;
+    margin: auto;
+}

@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+    <html>
+        <head>
+         
+
+
+             <link rel="stylesheet" type="text/css" href="style.css">
+
+          
+            <title> Cube Solver</title>
+        </head>
+        
+        <header>
+    
+         
+        </header>
+        <body>
+<!-- ALGORITHM MODAL-->
+<div class="algorithm-modal-container">
+<div class="algorithm-modal">
+  <p id="modal-para"></p>
+</div>
+</div>
+
+<!-- scrambled case input-->
+<div class="scramble-modal-container">
+  <label for="scramble-input">Paste Scramble</label>
+<input type="text" id="scramble-input">
+<button class="scramble-btn">Execute scramble</button>
+  </div>
+
+
+
+                          <!-- MAIN  CONTAINER-->
+          <div class="container">
+
+          <!-- face rotation buttons DEFAULT-->
+            <div class="config-container">
+              <p class="config">MOVE</p>
+              <div class="config-div">
+                <button id="u-btn" class="face-rotate-btn">U</button>
+                <button  id="d-btn"  class="face-rotate-btn">D</button>
+                <button  id="l-btn"  class="face-rotate-btn">L</button>
+                <button  id="r-btn"  class="face-rotate-btn">R</button>
+                <button  id="f-btn"  class="face-rotate-btn">F</button>
+                <button  id="b-btn"  class="face-rotate-btn">B</button>
+              </div>
+            </div>
+
+              <!-- FACE -->
+            <div class="face-div">
+              <p class="face-name">UP</p>
+              <div id="up-face" class="face-element"></div>
+            </div>
+
+            <!-- face rotation buttons PRIME-->
+            <div class="config-container">
+              <p class="config">MOVE`</p>
+              <div class="config-div">
+                <button id="u-prime-btn" class="face-rotate-prime-btn">U`</button>
+                <button  id="d-prime-btn"  class="face-rotate-prime-btn">D`</button>
+                <button  id="l-prime-btn"  class="face-rotate-prime-btn">L`</button>
+                <button  id="r-prime-btn"  class="face-rotate-prime-btn">R`</button>
+                <button  id="f-prime-btn"  class="face-rotate-prime-btn">F`</button>
+                <button  id="b-prime-btn"  class="face-rotate-prime-btn">B`</button>
+              </div>
+            </div>
+
+              <!-- FACE -->
+            <div class="face-div">
+              <p class="face-name">LEFT</p>
+              <div id="left-face" class="face-element"></div>
+            </div>
+
+                <!-- FACE -->
+            <div class="face-div">
+              <p class="config">FRONT</p>
+              <div id="front-face" class="face-element"></div> 
+            </div>
+
+                <!-- FACE -->
+            <div class="face-div">
+              <p class="face-name">RIGHT</p>
+              <div id="right-face" class="face-element"></div>
+            </div>
+
+                <!-- cube rotation buttons DEFAULT-->
+            <div class="config-container">
+              <p class="config">DOUBLES</p>
+
+              <div class="config-div">
+                <button id="u2-btn" class="face-double-rotate-btn">U2</button>
+                <button  id="d2-btn"  class="face-double-rotate-btn">D2</button>
+                <button  id="l2-btn"  class="face-double-rotate-btn">L2</button>
+                <button  id="r2-btn"  class="face-double-rotate-btn">R2</button>
+                <button  id="f2-btn"  class="face-double-rotate-btn">F2</button>
+                <button  id="b2-btn"  class="face-double-rotate-btn">B2</button>
+              </div>
+            </div>
+
+                <!-- FACE -->
+            <div class="face-div">
+              <p class="face-name">BACK</p>
+              <div id="back-face" class="face-element"></div>
+            </div>
+
+            <!-- cube rotation buttons PRIME-->
+            <div class="config-container">
+              <p class="config">ROTATE`</p>
+              <div class="config-div">
+                <button id="x-btn" class="cube-rotate-btn">X</button>
+                <button id="x-prime-btn" class="cube-rotate-prime-btn">X`</button>
+                <button id="y-btn" class="cube-rotate-btn">Y</button>
+                <button id="y-prime-btn" class="cube-rotate-prime-btn">Y`</button>
+                <button id="z-btn" class="cube-rotate-btn">Z</button>
+                <button id="z-prime-btn" class="cube-rotate-prime-btn">Z`</button>
+              </div>
+            </div>
+
+                <!-- CUBE STATE BUTTONS -->
+            <div class="config-container">
+              <p class="config">CONFIG</p>
+              <div class="config-div">
+                <button id="scramble" class="cube-state-btn">scramble</button>
+                <button id="solve" class="cube-state-btn">solve</button>   
+                <button id="reset" class="cube-state-btn">reset</button>
+              </div>
+            </div>
+
+                <!-- FACE -->
+            <div class="face-div">
+              <p class="face-name">DOWN</p>
+              <div id="down-face" class="face-element"></div>  
+            </div>
+
+                <!-- CUBE STATE INFO -->
+            <div class="config-container">
+              <p class="config">MOVES TOTAL</p>
+              <div class="config-div">
+                <p class="moves-para">0</p>
+              </div>
+            </div>
+
+
+
+               <!-- END OF MAIN CONTAINER-->
+          </div>
+
+
+
+
+
+
+
+
+
+
+
+<script src="script.js"></script>
+        </body>
+      <footer>
+       
+                             
+      </footer>             
+    </html>
+
+
+    <!--
+
+
+        <div id="upper-piles-container"></div>
+
+    -->
