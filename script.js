@@ -126,7 +126,8 @@ let upLayerEdges = []
 let midLayerEdges = []
 let downLayerEdges = []
 
-
+// variable for number of solved cross pieces
+let solvedCrossPieces = 0;
 
 // arrays to hold facets for each face
 let leftFacetArr = []
@@ -226,10 +227,11 @@ if(newConfig){
   ]
   
   midLayerEdges = [
-    [cubeMatrixAlt[2][1][0], cubeMatrixAlt[1][1][2]], // FRONT-LEFT
+
     [cubeMatrixAlt[4][1][2], cubeMatrixAlt[1][1][0]], // BACK-LEFT
-    [cubeMatrixAlt[4][1][0], cubeMatrixAlt[3][1][2]] // BACK-RIGHT
+    [cubeMatrixAlt[2][1][0], cubeMatrixAlt[1][1][2]], // FRONT-LEFT
     [cubeMatrixAlt[2][1][2], cubeMatrixAlt[3][1][0]], // FRONT-RIGHT
+    [cubeMatrixAlt[4][1][0], cubeMatrixAlt[3][1][2]] // BACK-RIGHT
   ]
   
   downLayerEdges = [
@@ -475,6 +477,8 @@ break;
 
 // D or D' move
 function downRotate(button, double){
+
+  console.log('down layer rotated')
   switch(button){
       case 'd-btn': // down default
       case 'd2-btn':
@@ -584,6 +588,8 @@ break;
 
 // L or L' move
 function leftRotate(button, double){
+  console.log('left layer rotated')
+
   switch(button){
     case 'l-btn':
       case 'l2-btn':
@@ -705,6 +711,8 @@ double == 'double'? renderCube(newConfig, 'update', double, 'left'): renderCube(
 
 // R or R' move
 function rightRotate(button, double){
+  console.log('right layer rotated')
+
   switch(button){
       case 'r-btn':
         case 'r2-btn':
@@ -822,6 +830,8 @@ double == 'double'? renderCube(newConfig, 'update', double, 'right'): renderCube
 
 // F or F' move
 function frontRotate(button, double){
+  console.log('front layer rotated')
+
   switch(button){
     case 'f-btn':
       case 'f2-btn':
@@ -936,6 +946,8 @@ let newBackPrime = cubeMatrixAlt[4]
 
 // B or B' move
 function backRotate(button, double){
+  console.log('back layer rotated')
+
   switch(button){
     case 'b-btn':
       case 'b2-btn':
@@ -1063,7 +1075,7 @@ const changeCubeState = (clickedButton) =>{
   }
 }
 
-
+// CUBE STATE BUTTONS EVENT LISTENER
 cubeStateBtns.forEach(button =>{
   button.addEventListener('click', e =>{
     changeCubeState(e.target.id)
@@ -1086,6 +1098,7 @@ let notOrientedCrossEdgeArray = []
       let orientedCrossPieces = 0;
 // variable for the number name of the slot where the cross piece sits
 let crossPiecePosition; 
+
           
     // check if there are any correctly oriented white cross pieces on the bottom layer
     downLayerEdges.forEach((edge, index) =>{
@@ -1110,125 +1123,231 @@ orientedCrossPieces ++;
 orientedCrossEdgeArray.push({
   'index_in_layer': index,
   'cross_piece': edge, 
-  'piece position':crossPiecePosition
+  'piece_position':crossPiecePosition
 })
       }
     })
+
+
+
 
     console.log(orientedCrossEdgeArray)
 // if one or more correctly oriented cross piece exists on the first layer check if the pieces are permuted corectly relative to each other
     if(orientedCrossPieces > 0){
       console.log(`correctly oriented cross pieces: ${orientedCrossPieces}  `)
-      console.log('only one correctly oriented piece in the first layer, so does not need to be permuted.')
       console.log(orientedCrossEdgeArray)
 
       switch(orientedCrossPieces){
-        case 1: // no need to do anything because the piece will be permuted correctly on the cube when ALL cross pieces are permuted correctly relative to one another, so you can then go on to check if there are any incorrectly oriented cross pieces in layer 1. 
+        case 1: // since only one piece is oriented correctly, it can stay as is, and other pieces that are added to the first layer can be compared with this piece to see if they are permuted correctly relative to each other; move onto next step. check if there are non-oriented cross pieces on the first layer
+        console.log('only one correctly oriented piece in the first layer, so does not need to be permuted.')
+        solvedCrossPieces ++
 checkNonOrientedCrossPieces()
         break;
         case 2: // if two cross pieces are correctly oriented
-      
-        let colour1 = crossEdgeArray[0].crossPiece[1]
-if(colour1  == 'o'){ // colour is ORANGE
-          // get non-white colour of second cross piece
-          let colour2 = crossEdgeArray[1].crossPiece[1]
 
-          // get index of original piece
-          let indexOfO = crossEdgeArray[0].index;
-          let cross2Index = crossEdgeArray[1].index;
-          // DETERMINE THE COLOUR OF THE SECOND CROSS PIECE
-          if(colour2 == 'g'){ // colour 2 is 'GREEN'
-            let indexOfG = cross2Index  // 'g' is one index position in front 'o' (clockwise - top down view)
-            // create a variable for the index of the position that 'g' needs to be in, so that it is permuted correctly relative to 'o'
-            let intendedIndex = (indexOfO + 1)%4 // note: if 'o' is at position 3, then 'g' will be at position (3 + 1)%4 = 4%4 = 0;
-            // check if the index of 'g' is as it should be if permuted correctly relative to 'o'
-            if(intendedIndex === indexOfG){  // if the index of 'g' and the intended index match, the two pieces are permuted correctly relative to each other; no moves required;
-              console.log('orange and green are permuted correctly relative to each other')
+      // GET SIDE-COLOR OF FIRST CROSS PIECE
+        let color1 = orientedCrossEdgeArray[0]['cross_piece'][1]
+      // GET SIDE-COLOR OF SECOND CROSS PIECE
+        let color2 = orientedCrossEdgeArray[1]['cross_piece'][1]
+        // get in-layer index of first piece
+        let indexColor1 = orientedCrossEdgeArray[0]['index_in_layer'];
+        // get in-layer index of second piece
+        let indexColor2 = orientedCrossEdgeArray[1]['index_in_layer'];
+        // get the name of the second edge piece; the edge name will be sent as a parameter to the  permute function, which will switch the name in order to determine which side-face to turn in order to manipulate the piece
+        let edgeName = orientedCrossEdgeArray[1]['piece_position']
 
-            }else{ // relative to piece 'o', piece 'g' is incorrectly permuted
-// the first move is trivial, i.e. finding the face on which the intended cross piece sits, and doing a double rotation so that it ends up on the third layer. 
-            }
-  
-          }else if(colour2 == 'r'){ // colour is RED 
-            let indexOfR = crossEdgeArray[1].index  // 'b' is two index positions in front 'o'
-            // variable for position of correctly permuted 'b'
-            let intendedIndex = (indexOfO + 2)%4
-        // check if the index of 'b' is as it should be if permuted correctly relative to 'o'
-        if(intendedIndex === indexOfR){  // if the index of 'g' and the intended index match, the two pieces are permuted correctly relative to each other; no moves required;
-          console.log('orange and red are permuted correctly relative to each other')
+        
 
-        }else{ // relative to piece 'o', piece 'b' is incorrectly permuted
-// if they are not permuted correctly relative to each other then calculate how far how many index positions 'b is away from its destination 
-        }
-          }else{ // the remaining colour must be BLUE
-            let indexOfB = crossEdgeArray[1].index  // 'b' is two index positions in front 'o'
-            // variable for position of correctly permuted 'b'
-            let intendedIndex = (indexOfO + 3)%4
-        // check if the index of 'b' is as it should be if permuted correctly relative to 'o'
-        if(intendedIndex === indexOfB){  // if the index of 'g' and the intended index match, the two pieces are permuted correctly relative to each other; no moves required;
-          console.log('orange and blue are permuted correctly relative to each other')
-        }else{ // relative to piece 'o', piece 'b' is incorrectly permuted
-
-        }
-
-
+if(color1  == 'o'){ // colour is ORANGE
+// DETERMINE THE COLOUR OF THE SECOND PIECE
+if(color2 == 'g'){ // colour 2 is 'GREEN'
+  permuteTwoCrossEdges(indexColor1, indexColor2, 3, edgeName)
+}else if(color2 == 'r'){ // colour is RED 
+  permuteTwoCrossEdges(indexColor1, indexColor2, 2, edgeName)
+}else{ // the remaining colour must be BLUE
+  permuteTwoCrossEdges(indexColor1, indexColor2, 1, edgeName)
           }
-
-
-
-
-
-
-
+}else if(color1 == 'b'){ // colour is RED
+  // DETERMINE THE COLOUR OF THE SECOND PIECE
+  if(color2 == 'o'){ // colour 2 is 'ORANGE'
+    permuteTwoCrossEdges(indexColor1, indexColor2, 3, edgeName)
+  }else if(color2 == 'g'){ // colour is GREEN 
+    permuteTwoCrossEdges(indexColor1, indexColor2, 2, edgeName)
+  }else{ // the remaining colour must be RED
+    permuteTwoCrossEdges(indexColor1, indexColor2, 1, edgeName)
+  }
+}else if(color1 == 'r'){ // colour is RED
+  // DETERMINE THE COLOUR OF THE SECOND PIECE
+  if(color2 == 'b'){ // colour 2 is 'BLUE'
+    permuteTwoCrossEdges(indexColor1, indexColor2, 3, edgeName)
+  }else if(color2 == 'o'){ // colour is ORANGE 
+    permuteTwoCrossEdges(indexColor1, indexColor2, 2, edgeName)
+  }else{ // the remaining colour must be GREEN
+    permuteTwoCrossEdges(indexColor1, indexColor2, 1, edgeName)
+  }
+}else{// colour must be GREEN
+  // DETERMINE THE COLOUR OF THE SECOND PIECE
+  if(color2 == 'r'){ // colour 2 is 'RED'
+    permuteTwoCrossEdges(indexColor1, indexColor2, 3, edgeName)
+  }else if(color2 == 'b'){ // colour is BLUE 
+    permuteTwoCrossEdges(indexColor1, indexColor2, 2, edgeName)
+  }else{ // the remaining colour must be ORANGE
+    permuteTwoCrossEdges(indexColor1, indexColor2, 1, edgeName)
+  }
 }
-
 break;
 case 3:
   break;
   case 4:
     break;
-  
+I   
     }
-
-  
 
 }else{
   checkNonOrientedCrossPieces()
+}
+}
 
+let solvedLayer1Cubies = []
+let solvedLayer2Cubies = []
+// PERMUTE 
+function permuteTwoCrossEdges(A, B, permuteDistance, edge_name){
+  // 'permuted' variable gives index position where correctly permuted 'B' sits relative to 'A'
+  let permuted = (A + permuteDistance)%4; // this will give a number between 0 and 3
+  // variable for forward rotations to correct permuted position of B
+  let rotationsToPermuted;
+  // variable for absolute rotations to correct permuted position of B; this value is used to turn the D-layer to the correct position for insertion of the cross piece from the U-layer
+
+  
+  let rawRotation;
+  if(B === permuted){
+    console.log('piece B is correctly permuted')
+   // as there are only correctly oriented pieces in the D-layer and they are solved, check for incorrectly oriented cross pieces on the down layer. 
+   solvedCrossPieces = 2;
+    checkNonOrientedCrossPieces() 
+  }else{ // piece B is not permuted correctly relative to piece A: find the absolute distance between the correct permutation position and position of 'B'
+rawRotation = permuted - B
+console.log(rawRotation)
+console.log('piece B is not correctly permuted')
+
+// if the rotation direction is negative
+if(rawRotation < 0){
+  console.log('piece B is ahead of its correctly permuted position')
+//adding 4 to a negative number of rotations gives the required number of forward rotations
+  rotationsToPermuted = rawRotation + 4
+}else if(rawRotation > 0){ // otherwise the rotation direction is positive
+  console.log('piece B is behind its correctly permuted position')
+
+  // otherwise the number of rotations is positive; use the raw rotation value
+  rotationsToPermuted = rawRotation
+}
+
+// switch the number of rotations to permuted so the down layer can receive the correct number of turns to receive the second piece
+// the down layer is timed to occur between the two 'side-face' turns; because the down layer receives the cross piece, it is a given that this is the layer we are turning. On the other hand, the side-face needs to be determined because it could be any one of the four faces vertical faces on the cube. 
+switch(rotationsToPermuted){
+case 1: // just one forward rotation so just the d-btn string
+console.log('seeing what happens on line 1246 when variable is assigned a function in this case down button')
+
+setTimeout(() => {
+  downLayerRotations =  downRotate('d-btn')
+}, 3200);
+
+break;
+case 2:// a double rotation
+setTimeout(() => {
+  downLayerRotations = downRotate('d2-btnless', 'double')
+}, 3200);
+
+break;
+case 3: // three rotations can be achieved by doing one prime rotation of the same face
+setTimeout(() => {
+  downLayerRotations = downRotate('d-prime-btn')
+}, 3200);
+
+break;
+}
+
+// switch edge_name parameter to determine which edge needs to be rotated. 
+switch(edge_name){
+  case 'down-right': //  double rotate the right face
+// first move
+  setTimeout(() => {
+    rightRotate('r2-btnless', 'double')
+  }, 1600);
+// third move
+  setTimeout(() => {
+    rightRotate('r2-btnless', 'double')
+  }, 4800);
+
+  // check result
+  setTimeout(() => {
+    updateLayer1CrossEdges()
+    checkNonOrientedCrossPieces()
+  }, 5200);
+    break;
+    case 'down-left': // double rotate the left face
+// timeout for first move
+    setTimeout(() => {
+      leftRotate('l2-btnless', 'double')
+    }, 1600);
+// timeout for third move
+    setTimeout(() => {
+      leftRotate('l2-btnless', 'double')
+    }, 4800);
+
+    // check result
+    setTimeout(() => { // recreate the array containing oriented cross pieces on the down layer so that the contents can be used later if there are non oriented cross pieces on the layer or if there are cross pieces on other layers. 
+      updateLayer1CrossEdges()
+      checkNonOrientedCrossPieces()
+    }, 5200);
+      break;
+      case 'down-front': // PIECE IS ON FRONT FACE
+      console.log('case: down-front')
+      // first move
+      setTimeout(() => {
+        frontRotate('f2-btnless', 'double')
+      }, 1600);
+// third move
+   setTimeout(() => {
+    frontRotate('f2-btnless', 'double')
+   }, 4800);
+   // check result
+   setTimeout(() => {
+    updateLayer1CrossEdges()
+    checkNonOrientedCrossPieces()
+  }, 5200);
+        break;
+        case 'down-back': // double rotate the back face
+// first smove
+        setTimeout(() => {
+          backRotate('b2-btnless', 'double')          
+        }, 1600);
+// third move
+        setTimeout(() => {
+          backRotate('b2-btnless', 'double')         
+        }, 4800);
+        // check result
+setTimeout(() => {
+  updateLayer1CrossEdges()
+  checkNonOrientedCrossPieces()
+}, 5200);
+          break;
+}
+
+
+solvedCrossPieces = 2
+checkNonOrientedCrossPieces() 
+
+  }
 
 }
 
+
+
+
+function checkResult(){
+
 }
-
-
-  function checkCrossPieceMidLayer(){
-    orientedCrossEdgeArray = []
-// variable for the number of oriented cross pieces
-let crossPieces = 0;
-// variable for the number name of the slot where the cross piece sits
-let crossPiecePosition; 
-        // check if there are any white cross pieces on the bottom layer
-        midLayerEdges.forEach((edge, index) =>{
-          console.log(edge)
-
-
-          if( edge[0] == 'w'|| edge[1] == 'w'){
-            // if either of the edge's facets is white incriment the cross pieces
-    crossPieces ++;
-    crossEdgeArray.push({
-      'index': index,
-      'cross_piece': edge, 
-      'piece position':crossPiecePosition
-    })
-          }
-        })
-
-        // console.log(crossEdgeArray)
-  }
-
-  function checkCrossUpLayer(){
-
-  }
 
 function checkNonOrientedCrossPieces(){
   console.log('checking for first layer cross pieces oriented incorrectly')
@@ -1254,7 +1373,448 @@ console.log(` there are ${notOrientedCrossPieces} incorrectly oriented cross pie
 console.log(notOrientedCrossEdgeArray)
 
     }else{
-      checkCrossPieceMidLayer()
+
+      console.log('there are no incorrectly oriented cross pieces in layer 1: checking middle layer for cross pieces....')
+            checkCrossPieceMidLayer()
     }
 
+}
+
+function updateLayer1CrossEdges(){
+  // clear the array containing the former
+  orientedCrossEdgeArray = []
+  let orientedCrossPieces = 0;
+    // check if there are any correctly oriented white cross pieces on the bottom layer
+    downLayerEdges.forEach((edge, index) =>{
+      console.log(edge)
+      if(edge[0] == 'w'){
+        // increment the oriented pieces variable
+orientedCrossPieces ++;
+
+          // index position of subarray referencing the piece is used to name the position of the cross piece
+          if(index === 0){
+            crossPiecePosition = 'down-back'
+          }else if(index === 1){
+            crossPiecePosition = 'down-left'
+          }else if(index === 2){
+            crossPiecePosition = 'down-front'
+          }else{
+            crossPiecePosition = 'down-right'
+          }
+
+
+// create an object properties of; index of rotation of the pice, the details of the cross piece edges, and the position of rotation in words. 
+orientedCrossEdgeArray.push({
+  'index_in_layer': index,
+  'cross_piece': edge, 
+  'piece_position':crossPiecePosition
+})
+      }
+    })
+}
+
+
+// array for cross edges on middle layer
+let midLayerCrossEdgesArray = []
+
+
+// PLACING CROSS PIECES FROM THE MID LAYER TO THE DOWN LAYER (PERMUTED)
+function checkCrossPieceMidLayer(){
+midLayerCrossEdgesArray = []
+// variable for the number of oriented cross pieces
+let crossPieces = 0;
+// variable for the number name of the slot where the cross piece sits
+let crossPiecePosition; 
+
+// get the  index of the white piece in the cross_piece array
+let edgePieceWhiteFacetIndex;
+// variable for holding the indexes (in an array) of white and non-white cross piece facets
+let facetIndexes;
+      // check if there are any white cross pieces on the bottom layer
+      midLayerEdges.forEach((edge, index) =>{
+        console.log(edge)
+
+
+        if( edge[0] == 'w'|| edge[1] == 'w'){
+          // if either of the edge's facets is white incriment the cross pieces
+
+                    // index position of subarray referencing the piece is used to name the position of the cross piece
+                    if(index === 0){
+                      crossPiecePosition = ['back', 'left']
+                      facetIndexes = [0, 1]
+                    }else if(index === 1){
+                      crossPiecePosition = ['front', 'left']
+                      facetIndexes = [2, 1]
+                    }else if(index === 2){
+                      crossPiecePosition = ['front', 'right']
+                      facetIndexes = [2, 3]
+                    }else{
+                      crossPiecePosition = ['back', 'right']
+                      facetIndexes = [0, 3]
+                    }
+
+
+  crossPieces ++;
+
+  midLayerCrossEdgesArray.push({
+    'index': index,
+    'facet_indexes': facetIndexes,
+    'cross_piece': edge, 
+    'piece_position':crossPiecePosition
+  })
+        }
+      })
+// if there are cross edge pieces on the middle layer
+      if(crossPieces > 0){
+        console.log(`cross pieces on middle layer: ${crossPieces}`)
+
+       if(orientedCrossEdgeArray.length > 0){ // if there is at least one oriented cross edge in the down layer
+          // then use the first instance as a master from which to calculate the intended permuted index of the edge piece found in the mid layer; note that if at this juncture there are oriented cross edge pieces in the down layer, they will have been permuted correctly relative to each other, since, that occurs BEFORE a check for non-oriented cross pieces on the down layer, and a check for cross pieces sitting in the mid layer. This means that it doesn't really matter which down layer cross piece is used as a guide, but for uniformity the first instance is used here. 
+
+// get the main colour; its position will be used as a reference for all other positions. 
+let masterEdgePiece = orientedCrossEdgeArray[0]
+let childCrossEdge = midLayerCrossEdgesArray[0]
+console.log('childCrossEdge')
+console.log(childCrossEdge)
+console.log('masterEdgePiece')
+console.log(masterEdgePiece)
+
+// variable for colour of nonn-white facet
+let childColor;
+// variable for index colour facet
+let childIndex;
+// variable for the colour of non-white facet of the cross piece on the down layer
+let masterColor  = masterEdgePiece['cross_piece'][1]
+// variable for the index of non-white facet (i.e. the index of the side-face it sits on)
+let masterIndex = masterEdgePiece['index_in_layer']
+// index of veritcal of the cube where the edge piece sits on the mid layer, the index refers to one of the vertical edges, BL, FL, FR and BR
+let vertical_edge_index = childCrossEdge['index']
+
+
+// give values of colour and index of non-white facet on the mid layer cross piece
+if(childCrossEdge['cross_piece'][0] == 'w'){
+// set edge piece white facet index
+edgePieceWhiteFacetIndex = 0;
+  // the child color is used to figure out how many rotations from the master the child piece needs to be
+  childColor = childCrossEdge['cross_piece'][1]
+  // child index gives you the face to be turned,
+  childIndex = childCrossEdge['facet_indexes'][1]
+
+
+}else{
+  childColor = childCrossEdge['cross_piece'][0]
+  childIndex = childCrossEdge['facet_indexes'][0]
+  // set edge piece white facet index
+  edgePieceWhiteFacetIndex = 1;
+}
+
+
+
+// show child colour
+console.log('childColor')
+console.log(childColor)
+// show child index
+console.log('childIndex')
+console.log(childIndex)
+// show master colour
+console.log('masterColor')
+console.log(masterColor)
+// show master index
+console.log('masterIndex')
+console.log(masterIndex)
+
+
+// FIRST work out the intended index of the permuted piece; using the relative distance from the master piece index. 
+if(masterColor  == 'o'){ // colour is ORANGE
+  // DETERMINE THE COLOUR OF THE SECOND PIECE
+  if(childColor == 'g'){ // colour 2 is 'GREEN'
+    placeMidLayerCrossPiece(masterIndex, childIndex, 3, vertical_edge_index, edgePieceWhiteFacetIndex)
+  }else if(childColor == 'r'){ // colour is RED 
+    placeMidLayerCrossPiece(masterIndex, childIndex, 2, vertical_edge_index, edgePieceWhiteFacetIndex)
+  }else{ // the remaining colour must be BLUE
+    placeMidLayerCrossPiece(masterIndex, childIndex, 1, vertical_edge_index, edgePieceWhiteFacetIndex)
+            }
+  }else if(masterColor == 'b'){ // colour is RED
+    // DETERMINE THE COLOUR OF THE SECOND PIECE
+    if(childColor == 'o'){ // colour 2 is 'ORANGE'
+      placeMidLayerCrossPiece(masterIndex, childIndex, 3, vertical_edge_index, edgePieceWhiteFacetIndex)
+    }else if(childColor == 'g'){ // colour is GREEN 
+      placeMidLayerCrossPiece(masterIndex, childIndex, 2, vertical_edge_index, edgePieceWhiteFacetIndex)
+    }else{ // the remaining colour must be RED
+      placeMidLayerCrossPiece(masterIndex, childIndex, 1, vertical_edge_index, edgePieceWhiteFacetIndex)
+    }
+  }else if(masterColor == 'r'){ // colour is RED
+    // DETERMINE THE COLOUR OF THE SECOND PIECE
+    if(childColor == 'b'){ // colour 2 is 'BLUE'
+      placeMidLayerCrossPiece(masterIndex, childIndex, 3, vertical_edge_index, edgePieceWhiteFacetIndex)
+    }else if(childColor == 'o'){ // colour is ORANGE 
+      placeMidLayerCrossPiece(masterIndex, childIndex, 2, vertical_edge_index, edgePieceWhiteFacetIndex)
+    }else{ // the remaining colour must be GREEN
+      placeMidLayerCrossPiece(masterIndex, childIndex, 1, vertical_edge_index, edgePieceWhiteFacetIndex)
+    }
+  }else{// colour must be GREEN
+    // DETERMINE THE COLOUR OF THE SECOND PIECE
+    if(childColor == 'r'){ // colour 2 is 'RED'
+      placeMidLayerCrossPiece(masterIndex, childIndex, 3, vertical_edge_index, edgePieceWhiteFacetIndex)
+    }else if(childColor == 'b'){ // colour is BLUE 
+      placeMidLayerCrossPiece(masterIndex, childIndex, 2, vertical_edge_index, edgePieceWhiteFacetIndex)
+    }else{ // the remaining colour must be ORANGE
+      placeMidLayerCrossPiece(masterIndex, childIndex, 1, vertical_edge_index, edgePieceWhiteFacetIndex)
+    }
+  }
+        }else{ // there are no correctly oriented edge pices in the down layer so the first cross edge piece in the mid layer can be rotated into place on the down layer. 
+        }
+        // the next step would be to use a combination of first layer edges, and the piece in the mid layer edges array to work out how to place the mid layer cross piece into the down layer. 
+
+        // for each piece you need to find out where it belongs on the first layer, and calculate the distance to the correct spot, then turn the down layer, and insert the piece. 
+      }else{
+        console.log('there are no cross pieces on the middle layer')
+checkCrossPiecesLastLayer()
+      }
+
+}
+
+// PLACING MID LAYER CROSS PIECES INTO DOWN LAYER
+function placeMidLayerCrossPiece(A, B, permuteDistance, verticalEdgeIndex, whiteFacetEdgeIndex){
+console.log('whiteFacetEdgeIndex')
+console.log(whiteFacetEdgeIndex)
+  // 'permuted' variable gives index position where correctly permuted 'B' sits relative to 'A'
+  let permuted = (A + permuteDistance)%4; // this will give a number between 0 and 3
+  // variable for forward rotations to correct permuted position of B
+  let rotationsToPermuted;
+  // variable for absolute rotations to correct permuted position of B; this value is used to turn the D-layer to the correct position for insertion of the cross piece from the U-layer
+ let rawRotation;
+  if(B === permuted){
+    console.log('piece B is correctly permuted')
+    console.log('index of B')
+    console.log(B)
+
+    console.log('index of permuted')
+    console.log(permuted)
+   // then the sits in the correct position to be slotted into place on the down layer. Given that we already have the index for the face that the color facet sits on, once you know the corner of the edge piece, then it becomes obvious where the white facit is and that will determine how the face is turned. 
+   setTimeout(() => {
+    switch(verticalEdgeIndex){
+      case 0:
+        if(B === 1){
+          leftRotate('l-prime-btn')
+        }else{
+          backRotate('b-btn')
+        }
+        break;
+        case 1:
+          if(B === 1){
+            leftRotate('l-btn')
+          }else{
+            frontRotate('f-prime-btn')
+          }
+          break;
+          case 2:
+            if(B === 3){
+              rightRotate('r-prime-btn')
+            }else{
+              frontRotate('f-btn')
+            }
+            break;
+            default:
+              if(B === 3){
+                rightRotate('r-btn')
+              }else{
+                backRotate('b-prime-btn')
+              }
+  
+     }
+   }, 1600);
+ 
+    
+  
+  }else{ // piece B is not permuted correctly relative to piece A: find the absolute distance between the correct permutation position and position of 'B'
+rawRotation = permuted - B
+
+// if the rotation direction is negative
+if(rawRotation < 0){
+  console.log('piece B is ahead of its correctly permuted position')
+//adding 4 to a negative number of rotations gives the required number of forward rotations
+  rotationsToPermuted = rawRotation + 4
+}else if(rawRotation > 0){ // otherwise the rotation direction is positive
+  console.log('piece B is behind its correctly permuted position')
+
+  // otherwise the number of rotations is positive; use the raw rotation value
+  rotationsToPermuted = rawRotation
+}
+
+
+// switch the number of rotations to permuted so the down layer can receive the correct number of turns to receive the second piece
+// the down layer is timed to occur between the two 'side-face' turns; because the down layer receives the cross piece, it is a given that this is the layer we are turning. On the other hand, the side-face needs to be determined because it could be any one of the four faces vertical faces on the cube. 
+switch(rotationsToPermuted){
+case 1: // just one forward rotation so just the d-btn string
+console.log('seeing what happens on line 1246 when variable is assigned a function in this case down button')
+
+setTimeout(() => { // single rotation of down layer
+  downLayerRotations =  downRotate('d-btn')
+}, 1600);
+
+break;
+case 2:// a double rotation of down layer
+setTimeout(() => {
+  downLayerRotations = downRotate('d2-btnless', 'double')
+}, 1600);
+
+break;
+case 3: // single prime rotation of down layer
+setTimeout(() => {
+  downLayerRotations = downRotate('d-prime-btn')
+}, 1600);
+
+break;
+}
+
+
+setTimeout(() => {
+  // check which vertical corner of the cube the edge piece sits on; and determine whether which side of the corner needs to turn in order to insert the cross piece into the down layer: this needs to be done AFTER the down layer has been turned to the correct position so that it can receive the cross piece from the mid layer
+
+  // CHECK WHITE FACET EDGE INDEX
+  console.log('whiteFacetEdgeIndex')
+  console.log(whiteFacetEdgeIndex)
+
+  //
+switch(verticalEdgeIndex){
+  case 0: // vertical corner is back-left
+    if(whiteFacetEdgeIndex === 0){
+      leftRotate('l-prime-btn')
+      console.log('L-PRIME MOVE')
+    }else{
+      backRotate('b-btn')
+      console.log('B MOVE')
+    }
+    break;
+    case 1:
+      if(whiteFacetEdgeIndex === 0){
+        leftRotate('l-btn')
+        console.log('L MOVE')
+      }else{
+        frontRotate('f-prime-btn')
+        console.log('F-PRIME MOVE')
+      }
+      break;
+      case 2:
+        if(whiteFacetEdgeIndex === 0){
+          rightRotate('r-prime-btn')
+          console.log('R-PRIME MOVE')
+        }else{
+          frontRotate('f-btn')
+          console.log('F MOVE')
+        } 
+        break;
+        default:
+          if(whiteFacetEdgeIndex === 0){
+            rightRotate('r-btn')
+            console.log('R MOVE')
+          }else{
+            backRotate('b-prime-btn')
+            console.log('B-PRIME MOVE')
+          } 
+          
+
+}
+checkCrossPiecesLastLayer()
+
+}, 4000);
+
+
+
+
+  }
+}
+
+
+
+
+
+// array for cross edges on middle layer
+let lastLayerCrossEdgesArray = []
+
+function checkCrossPiecesLastLayer(){
+console.log('checking last layer from white cross edge pieces... ')
+// update the down layers
+updateLayer1CrossEdges()
+
+upLayerEdges.forEach((edge,index) =>{
+  if( edge[0] == 'w'|| edge[1] == 'w'){
+    // if either of the edge's facets is white incriment the cross pieces
+
+              // index position of subarray referencing the piece is used to name the position of the cross piece
+              if(index === 0){
+                crossPiecePosition = ['up', 'back']
+                facetIndexes = [0, 2]
+              }else if(index === 1){
+                crossPiecePosition = ['up', 'left']
+                facetIndexes = [0, 1]
+              }else if(index === 2){
+                crossPiecePosition = ['up', 'front']
+                facetIndexes = [0, 2]
+              }else{
+                crossPiecePosition = ['up', 'right']
+                facetIndexes = [0, 3]
+              }
+
+
+
+
+lastLayerCrossEdgesArray.push({
+'index': index,
+'facet_indexes': facetIndexes,
+'cross_piece': edge, 
+'piece_position':crossPiecePosition
+})}
+})
+
+
+// if there are cross pieces on the last layer
+if(lastLayerCrossEdgesArray.length > 0){
+
+
+// if cross pieces exist on the first layer, one of them can be used to calculate where the cross piece in the last layer should go. 
+if(orientedCrossEdgeArray.length > 0){
+let masterEdgePiece = orientedCrossEdgeArray[0]
+// get master color of cross piece in down layer
+ let masterColor = masterEdgePiece['cross_piece'][1]
+ // get index of master color
+ let masterIndex = masterEdgePiece['index_in_layer']
+ // variables for child edge, non-white color and index, of cross piece in last layer
+ let childColor;
+let childIndex;
+let childPosition;
+ let childCrossEdge = lastLayerCrossEdgesArray[0]['cross_piece']
+ if(childCrossEdge[0] == 'w'){ // the white face is facing upward
+childColor = childCrossEdge[1] // so the side-face is the color facet
+childPosition = lastLayerCrossEdgesArray[0]['piece_position'][1]
+
+ }else{
+  childColor = childCrossEdge[0] // color facet is facing upward and white is on the side
+  childPosition = lastLayerCrossEdgesArray[0]['piece_position'][0]
+ }
+
+
+// show child colour
+console.log('childColor')
+console.log(childColor)
+// show child index
+console.log('childIndex')
+console.log(childIndex)
+// show master colour
+console.log('masterColor')
+console.log(masterColor)
+// show master index
+console.log('masterIndex')
+console.log(masterIndex)
+
+
+
+
+
+
+
+ 
+}
+}
 }
