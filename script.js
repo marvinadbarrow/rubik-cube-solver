@@ -1212,6 +1212,7 @@ let solvedLayer1Cubies = []
 let solvedLayer2Cubies = []
 // PERMUTE 
 function permuteTwoCrossEdges(A, B, permuteDistance, edge_name){
+  
   // 'permuted' variable gives index position where correctly permuted 'B' sits relative to 'A'
   let permuted = (A + permuteDistance)%4; // this will give a number between 0 and 3
   // variable for forward rotations to correct permuted position of B
@@ -1244,28 +1245,21 @@ if(rawRotation < 0){
 
 // switch the number of rotations to permuted so the down layer can receive the correct number of turns to receive the second piece
 // the down layer is timed to occur between the two 'side-face' turns; because the down layer receives the cross piece, it is a given that this is the layer we are turning. On the other hand, the side-face needs to be determined because it could be any one of the four faces vertical faces on the cube. 
-switch(rotationsToPermuted){
-case 1: // just one forward rotation so just the d-btn string
-console.log('seeing what happens on line 1246 when variable is assigned a function in this case down button')
 
 setTimeout(() => {
-  downLayerRotations =  downRotate('d-btn')
+  switch(rotationsToPermuted){
+    case 1: // just one forward rotation so just the d-btn string
+         downRotate('d-btn')
+    break;
+    case 2:// a double rotation
+        downRotate('d2-btnless', 'double')
+    break;
+    case 3: // three rotations can be achieved by doing one prime rotation of the same face
+        downRotate('d-prime-btn')
+    break;
+    }
 }, 3200);
 
-break;
-case 2:// a double rotation
-setTimeout(() => {
-  downLayerRotations = downRotate('d2-btnless', 'double')
-}, 3200);
-
-break;
-case 3: // three rotations can be achieved by doing one prime rotation of the same face
-setTimeout(() => {
-  downLayerRotations = downRotate('d-prime-btn')
-}, 3200);
-
-break;
-}
 
 // switch edge_name parameter to determine which edge needs to be rotated. 
 switch(edge_name){
@@ -1281,7 +1275,7 @@ switch(edge_name){
 
   // check result
   setTimeout(() => {
-    updateLayer1CrossEdges()
+
     checkNonOrientedCrossPieces()
   }, 5200);
     break;
@@ -1360,6 +1354,7 @@ function checkNonOrientedCrossPieces(){
         // if either of the edge's facets is white incriment the cross pieces
   notOrientedCrossPieces ++;
   notOrientedCrossEdgeArray.push({
+    // the index of the incorrectly oriented cross piece indicates which face needs to be rotated once to get the cross piece into the mid layer
   'index_in_layer': index,
   'cross_piece': edge,
   })
@@ -1372,10 +1367,79 @@ function checkNonOrientedCrossPieces(){
 console.log(` there are ${notOrientedCrossPieces} incorrectly oriented cross pieces in layer 1`)
 console.log(notOrientedCrossEdgeArray)
 
+
+// the face on which the white facet of the incorrectly oriented cross piece sits needs one rotation so that it ends up on the middle layer
+
+// use the index to determine the face the white facet sits on, and then rotate relevant faces to get the piece into the first layer oriented correctly - permutation can be checked afterward (if the array containing cross piece objects has entries), if necessary. 
+let childIndex = notOrientedCrossEdgeArray[0]
+switch(childIndex){
+case 0: // white facet is on back face
+setTimeout(() => {
+  backRotate('b-btn')
+}, 1000);
+setTimeout(() => {
+  downRotate('d-prime-btn')
+}, 2000);
+setTimeout(() => {
+  rightRotate('r-btn')
+}, 3000);
+  break;
+  case 1: // white facet is on left face
+  setTimeout(() => {
+    leftRotate('l-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-prime-btn')
+  }, 2000);
+  setTimeout(() => {
+    backRotate('b-btn')
+  }, 3000);
+    break;
+    case 2: // white facet is on front face
+    setTimeout(() => {
+  frontRotate('f-btn')
+    }, 1000);
+    setTimeout(() => {
+      downRotate('d-prime-btn')
+    }, 2000);
+    setTimeout(() => {
+      leftRotate('l-btn')
+    }, 3000);
+      break;
+      default: // otherwise white facet is on right face
+      setTimeout(() => {
+  rightRotate('r-btn')
+      }, 1000);
+      setTimeout(() => {
+        downRotate('d-prime-btn')
+      }, 2000);
+      setTimeout(() => {
+        frontRotate('f-btn')
+      }, 3000);
+    
+}
+
+
+// delay about a second 
+setTimeout(() => {
+  // if there are oriented cross pieces on the first layer wait a second and run an update on the edge pieces on the down layer and then check for orientation/permutation and fix
+if(orientedCrossEdgeArray.length > 0){
+
+  // update cross edges
+  updateLayer1CrossEdges()
+  // check downlayer
+  checkCrossDownLayer()
+
+}else{ // since the cross pieces on down layer array is empty, this must have been the first cross piece on the layer so move on to a mid layer check 
+  checkCrossPieceMidLayer()
+}
+
+}, 3800);
     }else{
 
       console.log('there are no incorrectly oriented cross pieces in layer 1: checking middle layer for cross pieces....')
             checkCrossPieceMidLayer()
+            // NOTE: for the F, L, R2, U, F2 scramble, there are no incorrectly oriented cross pieces on the downlayer,  hence this part of the code runs. 
     }
 
 }
@@ -1562,13 +1626,13 @@ if(masterColor  == 'o'){ // colour is ORANGE
       placeMidLayerCrossPiece(masterIndex, childIndex, 1, vertical_edge_index, edgePieceWhiteFacetIndex)
     }
   }
-        }else{ // there are no correctly oriented edge pices in the down layer so the first cross edge piece in the mid layer can be rotated into place on the down layer. 
-        }
-        // the next step would be to use a combination of first layer edges, and the piece in the mid layer edges array to work out how to place the mid layer cross piece into the down layer. 
+        }else{ // there are no correctly oriented edge pieces in the down layer so the first cross edge piece in the mid layer can be rotated into place on the down layer. 
 
-        // for each piece you need to find out where it belongs on the first layer, and calculate the distance to the correct spot, then turn the down layer, and insert the piece. 
+
+        }
+
       }else{
-        console.log('there are no cross pieces on the middle layer')
+        console.log('there are no cross pieces on the middle layer; checking for cross pieces on the last layer')
 checkCrossPiecesLastLayer()
       }
 
@@ -1650,19 +1714,19 @@ case 1: // just one forward rotation so just the d-btn string
 console.log('seeing what happens on line 1246 when variable is assigned a function in this case down button')
 
 setTimeout(() => { // single rotation of down layer
-  downLayerRotations =  downRotate('d-btn')
+     downRotate('d-btn')
 }, 1600);
 
 break;
 case 2:// a double rotation of down layer
 setTimeout(() => {
-  downLayerRotations = downRotate('d2-btnless', 'double')
+    downRotate('d2-btnless', 'double')
 }, 1600);
 
 break;
 case 3: // single prime rotation of down layer
 setTimeout(() => {
-  downLayerRotations = downRotate('d-prime-btn')
+    downRotate('d-prime-btn')
 }, 1600);
 
 break;
@@ -1670,7 +1734,7 @@ break;
 
 
 setTimeout(() => {
-  // check which vertical corner of the cube the edge piece sits on; and determine whether which side of the corner needs to turn in order to insert the cross piece into the down layer: this needs to be done AFTER the down layer has been turned to the correct position so that it can receive the cross piece from the mid layer
+  // check which vertical corner of the cube the edge piece sits on; and determine whether side of the corner needs to turn in order to insert the cross piece into the down layer, correctly oriented: this needs to be done AFTER the down layer has been turned to the correct position so that it can receive the cross piece from the mid layer
 
   // CHECK WHITE FACET EDGE INDEX
   console.log('whiteFacetEdgeIndex')
@@ -1716,10 +1780,14 @@ switch(verticalEdgeIndex){
           
 
 }
-checkCrossPiecesLastLayer()
 
-}, 4000);
 
+}, 3200);
+
+setTimeout(() => {
+  console.log('running check on last layer for cross pieces...')
+  checkCrossPiecesLastLayer()
+}, 4600);
 
 
 
@@ -1775,46 +1843,287 @@ if(lastLayerCrossEdgesArray.length > 0){
 
 // if cross pieces exist on the first layer, one of them can be used to calculate where the cross piece in the last layer should go. 
 if(orientedCrossEdgeArray.length > 0){
+  // get master cross piece
 let masterEdgePiece = orientedCrossEdgeArray[0]
-// get master color of cross piece in down layer
+// get master facet non-white color
  let masterColor = masterEdgePiece['cross_piece'][1]
- // get index of master color
+ // get index of master 
  let masterIndex = masterEdgePiece['index_in_layer']
- // variables for child edge, non-white color and index, of cross piece in last layer
+ // variables for child object containing all details about the last layer cross piece, cross piece edge, non-white facet color and index of cross piece relative to its side face, and side-face position name (e.g right/left/front/back)
+ let childObj
+ let childCrossEdge
  let childColor;
 let childIndex;
 let childPosition;
- let childCrossEdge = lastLayerCrossEdgesArray[0]['cross_piece']
+// the below 'oriented' variable, which is assigned a boolean  depending on whether the white facet is oriented upward or not; will be used in a switch statement (or an IF/ELSE condition) to determine the path of the cross piece to its oriented and permuted position on the down layer. 
+let oriented;
+// get child Obj
+childObj = lastLayerCrossEdgesArray[0]
+// get child cross piece
+ childCrossEdge = childObj['cross_piece']
+// get child cross piece index; this index references the side-face that the cross piece is part of
+childIndex = childObj['index']
+// get side-face name associated with child. NOTE: irrespective of the orientation of the cross piece on the last layer, that is, whether the white facet is on the up-face or a side-face, the side face that the cross piece sits on is the face that needs to be turned initially in order to move the cross piece. the path of the cross piece will change depending on the orientation of the piece, which can be determined using the IF/ELSE condition below
+childPosition = childObj['piece_position'][1]
+ // determine child non-white facet color
  if(childCrossEdge[0] == 'w'){ // the white face is facing upward
-childColor = childCrossEdge[1] // so the side-face is the color facet
-childPosition = lastLayerCrossEdgesArray[0]['piece_position'][1]
-
- }else{
-  childColor = childCrossEdge[0] // color facet is facing upward and white is on the side
-  childPosition = lastLayerCrossEdgesArray[0]['piece_position'][0]
- }
-
-
-// show child colour
-console.log('childColor')
-console.log(childColor)
-// show child index
-console.log('childIndex')
-console.log(childIndex)
-// show master colour
-console.log('masterColor')
-console.log(masterColor)
-// show master index
-console.log('masterIndex')
-console.log(masterIndex)
-
-
-
-
-
-
-
- 
+childColor = childCrossEdge[1] // so the side-face holds the color facet
+oriented = true;
+}else{
+  childColor = childCrossEdge[0] //  the up-face holds the color facet
+  oriented = false;
 }
+
+// switch master color and determine child colour, then send, as parameters to the 'place last layer cross piece' function, master and child index, number of rotations from master index to permuted child index, oriented status of cross piece, and the name of the side-face that the cross piece sits on. 
+
+if(masterColor  == 'o'){ // colour is ORANGE
+  // DETERMINE THE COLOUR OF THE SECOND PIECE
+  if(childColor == 'g'){ // colour 2 is 'GREEN'
+    placeLastLayerCrossPiece(masterIndex, childIndex, 3, oriented, childPosition)
+  }else if(childColor == 'r'){ // colour is RED 
+    placeLastLayerCrossPiece(masterIndex, childIndex, 2, oriented, childPosition)
+  }else{ // the remaining colour must be BLUE
+    placeLastLayerCrossPiece(masterIndex, childIndex, 1, oriented, childPosition)
+            }
+  }else if(masterColor == 'b'){ // colour is RED
+    // DETERMINE THE COLOUR OF THE SECOND PIECE
+    if(childColor == 'o'){ // colour 2 is 'ORANGE'
+      placeLastLayerCrossPiece(masterIndex, childIndex, 3, oriented, childPosition)
+    }else if(childColor == 'g'){ // colour is GREEN 
+      placeLastLayerCrossPiece(masterIndex, childIndex, 2, oriented, childPosition)
+    }else{ // the remaining colour must be RED
+      placeLastLayerCrossPiece(masterIndex, childIndex, 1, oriented, childPosition)
+    }
+  }else if(masterColor == 'r'){ // colour is RED
+    // DETERMINE THE COLOUR OF THE SECOND PIECE
+    if(childColor == 'b'){ // colour 2 is 'BLUE'
+      placeLastLayerCrossPiece(masterIndex, childIndex, 3, oriented, childPosition)
+    }else if(childColor == 'o'){ // colour is ORANGE 
+      placeLastLayerCrossPiece(masterIndex, childIndex, 2, oriented, childPosition)
+    }else{ // the remaining colour must be GREEN
+      placeLastLayerCrossPiece(masterIndex, childIndex, 1, oriented, childPosition)
+    }
+  }else{// colour must be GREEN
+    // DETERMINE THE COLOUR OF THE SECOND PIECE
+    if(childColor == 'r'){ // colour 2 is 'RED'
+      placeLastLayerCrossPiece(masterIndex, childIndex, 3, oriented, childPosition)
+    }else if(childColor == 'b'){ // colour is BLUE 
+      placeLastLayerCrossPiece(masterIndex, childIndex, 2, oriented, childPosition)
+    }else{ // the remaining colour must be ORANGE
+      placeLastLayerCrossPiece(masterIndex, childIndex, 1, oriented, childPosition)
+    }
+  }
+ 
+}else{
+  // there are no oriented cross pieces on the down layer, so the last layer cross piece can be inserted without a permutation check - either just doing a double rotation on the side-face, if 'oriented === true', or a single forward rotation of the side-face and then a prime rotation of the face at index '(side-face index + 1)%4', if 'oriented === false'. 
+
+  if(oriented === true){ // the white facet is on the up-face
+    switch(childPosition){
+      case 'back': // double rotate back
+        backRotate('b2-btnless', 'double')
+        break;
+        case 'left': // double rotate left
+          leftRotate('l2-btnless', 'double')
+          break;
+          case 'front': // double rotate front
+            frontRotate('f2-btnless', 'double')
+            break;
+            default: // this must be the right face - double rotate right
+            rightRotate('r2-btnless', 'double')
+    }
+  }else if(oriented === false){
+
+    switch(childPosition){
+      case 'back': // single rotate back, followed by left prime
+        backRotate('b-btn')
+        leftRotate('l-prime-btn')
+        break;
+        case 'left': // single rotate left, followed by front prime
+          leftRotate('l-btnless')
+          frontRotate('f-prime-btn')
+          break;
+          case 'front': // single rotate front, followed by right prime
+            frontRotate('f-btnless')
+            rightRotate('r-prime-btn')
+            break;
+            default: // this must be the right face - single rotate right, followed by back prime
+            rightRotate('r-btnless')
+            backRotate('b-prime-btn')
+    }
+
+  }else{
+    // something is wrong; there is no orientation information on the last layer cross piece
+    console.log('there is no orientation information on the child cross piece')
+  }
+}
+}
+}
+
+
+
+
+
+// placing a lasts layer cross piece into down layer oriented and permuted. 
+function placeLastLayerCrossPiece(masterIndex, childIndex, permuteDistance, orientation, side_face){
+  console.log('running placement of last layer cross piece... line 1922')
+  // 'permuted' variable gives index position where correctly permuted 'B' sits relative to 'A'
+  let permutedIndex = (masterIndex + permuteDistance)%4; // this will give a number between 0 and 3
+  // variable for forward rotations to correct permuted position of child
+  let rotationsToPermuted;
+  // variable for absolute rotations to correct permuted position of B; this value is used to turn the D-layer to the correct position for insertion of the cross piece from the U-layer
+ let rawRotation; 
+
+ // if the piece is already at the correct index for permutation
+ if(childIndex === permutedIndex){
+// the cross piece sits at the index of correct permutation: check the orientation of the cross piece. 
+ setTimeout(() => {
+  switch(orientation){
+    case true: // cross piece is oriented such that it can be placed directly to the correctly permuted position, in one move
+    if(side_face == 'back'){
+
+      backRotate('b2-btnless', 'double')
+    }else if(side_face == 'left'){
+      leftRotate('l2-btnless', 'double')
+    }else if(side_face == 'front'){
+      frontRotate('f2-btnless', 'double')
+    }else{ // side-face must be right
+      rightRotate('r2-btnless', 'double')
+    }
+break;
+default://cross piece is oriented such that more than one move is required to enable placement to the correctly permuted position. 
+if(side_face == 'back'){
+  setTimeout(() => {
+    backRotate('b-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn') 
+  }, 2000);
+  setTimeout(() => {
+    leftRotate('l-prime-btn') 
+  }, 3000);
+}else if(side_face == 'left'){
+  setTimeout(() => {
+    leftRotate('l-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn') 
+  }, 2000);
+  setTimeout(() => {
+    frontRotate('f-prime-btn')
+  }, 3000);
+}else if(side_face == 'front'){
+  setTimeout(() => {
+    frontRotate('f-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn') 
+  }, 2000);
+  setTimeout(() => {
+    rightRotate('r-prime-btn')
+  }, 3000);
+}else{ // side-face must be right
+  setTimeout(() => {
+    rightRotate('r-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn')
+  }, 2000);
+  setTimeout(() => {
+    backRotate('b-prime-btn')
+  }, 3000);
+}
+   }
+
+ }, 1000);
+
+
+}else{ // the cross piece is not at the correctly permuted index. So before it can be placed the down layer needs to be rotated the appropriate distance
+
+   rawRotation = permutedIndex - childIndex
+
+  if(rawRotation < 0){ // adjust negative rotational values for forward rotation
+    rotationsToPermuted = rawRotation + 4
+  }else{ // raw rotation is already positive so use the original rotation for rotations to permuted 
+    rotationsToPermuted = rawRotation
+  }
+
+  // ROTATE DOWN LAYER TO CORRECT POSITION READY TO HAVE CROSS PIECE INSERTED
+  setTimeout(() => {
+    // switch rotations to permuted to see how many rotations to make on the down layer
+    switch(rotationsToPermuted){
+      case 1:
+        downRotate('d-btn')
+        break;
+        case 2:
+          downRotate('d2-btnless', 'double')
+          break;
+          default: // this value must be 3, since there are only three possible rotation positions if the child cross piece is not permuted correctly. 
+          downRotate('d-prime-btn')
+  
+    }
+  }, 1000);
+  // now rotate the down layer accordingly by switching the value of rotations to permuted value
+
+  // once the down face is rotated, exexute the rotations required for childIndex === rotationsToPermuted
+  // FIRST: check the orientation of the cross piece. 
+ setTimeout(() => {
+  // CHECKING CROSS PIECE ORIENTATION
+  switch(orientation){
+    case true: // cross piece is oriented such that it can be placed directly to the correctly permuted position, in one move
+    if(side_face == 'back'){
+      backRotate('b2-btnless', 'double')
+    }else if(side_face == 'left'){
+      leftRotate('l2-btnless', 'double')
+    }else if(side_face == 'front'){
+      frontRotate('f2-btnless', 'double')
+    }else{ // side-face must be right
+      rightRotate('r2-btnless', 'double')
+    }
+break;
+default://cross piece is oriented such that more than one move is required to enable placement to the correctly permuted position. 
+if(side_face == 'back'){ // side-face is back
+  setTimeout(() => {
+    backRotate('b-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn')
+  }, 2000);
+  setTimeout(() => {
+    leftRotate('l-prime-btn')
+  }, 3000);
+}else if(side_face == 'left'){ // side face is front
+  setTimeout(() => {
+    leftRotate('l-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn')
+  }, 2000);
+  setTimeout(() => {
+    frontRotate('f-prime-btn')
+  }, 3000);
+}else if(side_face == 'front'){ // side-face is front
+  setTimeout(() => {
+    frontRotate('f-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn')
+  }, 2000);
+  setTimeout(() => {
+    rightRotate('r-prime-btn')
+  }, 3000);
+}else{ // side-face must be right
+  setTimeout(() => {
+    rightRotate('r-btn')
+  }, 1000);
+  setTimeout(() => {
+    downRotate('d-btn')
+  }, 2000);
+  setTimeout(() => {
+    backRotate('b-prime-btn')
+  }, 3000);
+
+}
+   }
+ }, 1200);
 }
 }
